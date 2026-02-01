@@ -38,10 +38,25 @@ It's worth noting that the aforementioned `lb` (bin logarithm) is misleading. Th
 
 As for the space complexity, it's `O(1)` for fixed-precision numbers. The basic implementation doesn't allocate auxiliary memory, but I'm _working on one that does_ (see below)
 
-## etc
+## Alts
+
+### Witness tracking
 The impl with aux-mem will use a data-structure to track the known "sub-partitions" that it encounters while bisecting (I call those "witnesses" or "bystanders"). For example:
 
 `s := [0,0,1,1,1,1,1]`
 `target := 0`, overshoot to index `3`. After finding the boundary at index `2`, we can remember that there are at least 2 instances of `1`, _even before we set it as our target_, just because we happen to visit it while searching for `0`
 
 If you only want to track one bystander at a time, your aux-mem will be `O(1)`. But my plan is to remember _all bystanders_, so I need something like a hash-map. I'm not sure if it's worth it, as maps have overhead
+
+### Radix-tree
+By treating the list as a "flattened" `N`-ary tree (such as a [BST](https://en.wikipedia.org/wiki/Binary_search_tree)), there's no need for partitions to be unique! However, this requires partitions to be ordered in such a way that bisections never mistakenly believe that a parent node only contains occurrences of the same value.
+
+To understand why, here's how this alt differs:
+1. If the 1st and last values of this section of the list are the same, assume all values in-between are the same; if not, continue
+2. Bisect this section and perform step#1 on each side
+
+If there's even a single different value in a "blind spot", the result could be wildly incorrect!
+
+I still don't know how to describe the requirement, but I believe it's practical to satisfy.
+
+BTW, if the flat-tree is a [heap](https://en.wikipedia.org/wiki/Binary_heap#Heap_implementation) ([_ahnentafel_](https://en.wikipedia.org/wiki/Ahnentafel) if you will), then [it'd be cache-optimal](https://curiouscoding.nl/posts/static-search-tree)! See also [this HN comment](https://news.ycombinator.com/item?id=42563407)
