@@ -67,12 +67,7 @@ def isum_p(s: list[int]):
 	return acc
 
 
-# It bothers me that this impl requires floats to be extremely close
-# in order to concat partitions.
-# I believe there must be some calculation that allows merging more runs
-# without sacrificing too much accuracy.
-# Perhaps something that takes inspiration from (infinitesimal) calculus?
-# Runs are very discrete; if they were more continuous, performance would improve.
+# TO-DO: https://cstheory.stackexchange.com/questions/9791/approximate-sum-of-a-sorted-list
 def fsum_s(s: list[float]):
 	"""
 	`s` is assumed to be sorted ascending.
